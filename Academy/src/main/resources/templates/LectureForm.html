@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>특강 관리</title>
+</head>
+<body>
+<h1>특강 등록 페이지</h1>
+<hr>
+<form id="lectureForm">
+	특 강 ID : <input type="text" id="lecture_id" name="lecture_id" required><br>
+	특 강 명 : <input type="text" id="title" name="title" required><br>
+	강 사 ID : <input type="text" id="teacher_id" name="teacher_id" required><br>
+	강 의 실 : <input type="text" id="room" name="room" required><br>
+	시작시간 : <input type="datetime-local" id="start" name="start"required><br>
+	최대인원 : <input type="number" id="capacity" name="capacity"required><br>
+	<button type="submit">등록하기</button>
+</form>
+<h3># 시작시간 설정 시 분은 00으로 설정해주십시오.</h3>
+<script>
+	document.getElementById("lectureForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+		var apiUrl = 'http://localhost:9999/lecture/add';
+
+		var lectureData = {
+            lecture_id : document.getElementById('lecture_id').value,
+            title : document.getElementById('title').value,
+            teacher_id : document.getElementById('teacher_id').value,
+            room : document.getElementById('room').value,
+            start : document.getElementById('start').value,
+            capacity : document.getElementById('capacity').value
+		};
+		
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(lectureData)
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('등록에 실패했습니다.');
+            }
+        })
+        .then(data => {
+			if (data.result === "OK") {
+				alert('등록이 완료되었습니다.');
+			} else if (data.result === "Teacher Not Found") {
+				alert("존재하지 않는 강사 ID 입니다. 강사를 먼저 등록해주세요.");
+			} else if (data.result === "Change Id") {
+				alert("이미 존재하는 강의 ID 입니다. 다른 아이디를 사용하세요.");
+			} else {
+			    alert("강의 시간이 겹칩니다. 시간을 조정해주세요.");
+			}
+        })
+        .catch(error => {
+            // 오류 발생 시 알림 표시
+            alert(error.message);
+        });
+    });
+</script>
+</body>
+</html>

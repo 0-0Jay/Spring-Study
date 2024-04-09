@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>특강 관리</title>
+</head>
+<body>
+<h1>강사 등록 페이지</h1>
+<hr>
+<form id="teacherForm">
+	강사 ID : <input type="text" id="teacher_id" name="teacher_id" required><br>
+	강 사 명 : <input type="text" id="teacher_name" name="teacher_name" required><br>
+	<input type="submit" value="등록하기">
+</form>
+<script>
+	document.getElementById("teacherForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+		var apiUrl = 'http://localhost:9999/teacher/enroll';
+
+		var teacherData = {
+            teacher_id : document.getElementById('teacher_id').value,
+            teacher_name : document.getElementById('teacher_name').value
+		};
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(teacherData)
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('등록에 실패했습니다.');
+            }
+        })
+        .then(data => {
+			if(data.result == true) {
+				alert('등록이 완료되었습니다.');
+			} else {
+			    alert('이미 존재하는 ID 입니다.');
+			}
+        })
+        .catch(error => {
+            // 오류 발생 시 알림 표시
+            alert(error.message);
+        });
+    });
+</script>
+</body>
+</html>

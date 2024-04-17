@@ -7,7 +7,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.example.Memos.dto.AddMemoRequest;
 import com.example.Memos.dto.AddUserRequest;
 import com.example.Memos.dto.AddUserResponse;
 import com.example.Memos.dto.CreateAccessTokenRequest;
@@ -16,6 +20,7 @@ import com.example.Memos.dto.GetMemoResponse;
 import com.example.Memos.service.MemoService;
 import com.example.Memos.service.TokenService;
 import com.example.Memos.service.UserService;
+import com.example.Memos.service.FileService;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -25,6 +30,7 @@ public class ApiController {
 	private final MemoService memoService;
 	private final UserService userService;
 	private final TokenService tokenService;
+	private final FileService fileService;
 
 	@PostMapping("/join")
 	public AddUserResponse postJoin(@RequestBody AddUserRequest request) {
@@ -54,6 +60,14 @@ public class ApiController {
 
 	@GetMapping("/memos")
 	public List<GetMemoResponse> getMemos(Principal user) {
+		return memoService.getMemosByUser(user.getName());
+	}
+	
+	@PostMapping("/memos")
+	public List<GetMemoResponse> addMemo(@RequestParam("body") String body, @RequestParam("file") MultipartFile file, Principal user) {
+		String savedName = fileService.uploadFile(file);
+		
+		memoService.addMemo(new AddMemoRequest(body, user.getName(), savedName));
 		return memoService.getMemosByUser(user.getName());
 	}
 }
